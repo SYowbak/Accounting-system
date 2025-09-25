@@ -122,7 +122,13 @@ export default function AddItemModal({
           return;
         }
         
-        const value = form[field.id];
+        let value = form[field.id];
+        
+        // Обробка кастомних одиниць виміру
+        if (field.id === 'unitOfMeasure' && value === '__custom__') {
+          value = form.customUnit || '';
+        }
+        
         if (field.type === 'number') {
           payload[field.id] = Number(value || 0);
         } else {
@@ -144,6 +150,7 @@ export default function AddItemModal({
       tableFields.forEach(field => {
         resetForm[field.id] = '';
       });
+      resetForm.customUnit = '';
       setForm(resetForm);
       setErrors({});
     }
