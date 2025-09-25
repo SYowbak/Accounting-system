@@ -14,6 +14,13 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+// Debug: Log configuration (without sensitive data)
+console.log('Firebase config loaded:', {
+  authDomain: firebaseConfig.authDomain,
+  projectId: firebaseConfig.projectId,
+  hasApiKey: !!firebaseConfig.apiKey
+});
+
 const app = initializeApp(firebaseConfig);
 
 export const auth = getAuth(app);

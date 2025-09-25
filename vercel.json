@@ -3,6 +3,7 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "installCommand": "npm install",
+  "alias": ["accounting-system-tan.vercel.app"],
   "headers": [
     {
       "source": "/(.*)",

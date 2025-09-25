@@ -80,9 +80,10 @@ export function AuthProvider({ children }) {
     /*Перевірка результату redirect при завантаженні*/
     getRedirectResult(auth).then(async (result) => {
       if (result) {
-        window.location.href = '/';
+        console.log('Google auth redirect success:', result.user.email);
       }
-    }).catch(() => {
+    }).catch((error) => {
+      console.error('Redirect result error:', error);
       setLoading(false);
     });
 
@@ -120,12 +121,18 @@ export function AuthProvider({ children }) {
   
   /*Функція входу через Google*/
   const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider();
-    provider.addScope('email');
-    provider.addScope('profile');
-    
-    // Use redirect method to avoid COOP issues
-    return signInWithRedirect(auth, provider);
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.addScope('email');
+      provider.addScope('profile');
+      
+      console.log('Starting Google auth with redirect method');
+      // Use redirect method to avoid COOP issues
+      await signInWithRedirect(auth, provider);
+    } catch (error) {
+      console.error('Google auth error:', error);
+      throw error;
+    }
   };
   
   /*Функція виходу з системи*/
