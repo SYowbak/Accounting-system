@@ -25,14 +25,10 @@ export default function LoginPage() {
       }
       // Success will be handled by AuthContext
     } catch (e) {
-      console.error('Google auth error:', e);
-      
-      // Check for COOP-related errors that might not be caught by the fallback
       if (e.message && (e.message.includes('Cross-Origin-Opener-Policy') || 
                        e.message.includes('window.close'))) {
         // Try redirect as a last resort
         try {
-          console.log('Attempting direct redirect due to COOP error');
           await signInWithGoogle(); // This should trigger redirect fallback
           return;
         } catch (redirectError) {

@@ -19,22 +19,13 @@ import NoAccessPage from '../pages/NoAccessPage';
 function PrivateOutlet() {
   const { user, profile, loading } = useAuth();
   
-  console.log('PrivateOutlet state:', { 
-    hasUser: !!user, 
-    hasProfile: !!profile, 
-    profileRole: profile?.role,
-    loading 
-  });
-  
   if (loading) return <LoadingScreen />;
 
   if (!user || !profile) {
-    console.log('Redirecting to login - no user or profile');
     return <Navigate to="/login" replace />;
   }
   
   if (!profile.role || profile.role === '') {
-    console.log('User has no role, showing NoAccess page');
     return <NoAccessPage />;
   }
   
@@ -44,13 +35,6 @@ function PrivateOutlet() {
 /*Компонент публічних маршрутів*/
 function PublicOutlet() {
   const { user, profile, loading } = useAuth();
-  
-  console.log('PublicOutlet state:', { 
-    hasUser: !!user, 
-    hasProfile: !!profile, 
-    profileRole: profile?.role,
-    loading 
-  });
   
   if (loading) return <LoadingScreen />;
   

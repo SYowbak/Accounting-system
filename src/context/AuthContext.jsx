@@ -31,7 +31,6 @@ export function AuthProvider({ children }) {
                 setLoading(false);
               } else {
                 /*Створення профілю для нового користувача*/
-                console.log('Creating profile for new user:', u.email);
                 const newProfile = {
                   email: u.email,
                   displayName: u.displayName || u.email,
@@ -42,11 +41,9 @@ export function AuthProvider({ children }) {
                   createdAt: serverTimestamp(),
                 };
                 setDoc(userDocRef, newProfile).then(() => {
-                  console.log('Profile created successfully for:', u.email);
                   setProfile({ id: u.uid, ...newProfile });
                   setLoading(false);
                 }).catch((createError) => {
-                  console.error('Failed to create profile:', createError);
                   if (createError.code === 'permission-denied') {
                     fbSignOut(auth);
                   }
@@ -56,7 +53,6 @@ export function AuthProvider({ children }) {
               }
             },
             (error) => {
-              console.error('Profile listener error:', error);
               if (error.code === 'permission-denied') {
                 /*Створення профілю при помилці доступу*/
                 const newProfile = {
@@ -76,6 +72,10 @@ export function AuthProvider({ children }) {
                   setLoading(false);
                 });
               } else {
+                if (profileListener) {
+                  profileListener();
+                  setProfileListener(null);
+                }
                 setProfile(null);
                 setLoading(false);
               }
@@ -101,20 +101,10 @@ export function AuthProvider({ children }) {
     /*Перевірка результату redirect при завантаженні*/
     getRedirectResult(auth).then(async (result) => {
       if (result && result.user) {
-        console.log('Google auth redirect success:', {
-          email: result.user.email,
-          provider: result.providerId,
-          isNewUser: result.additionalUserInfo?.isNewUser
-        });
         // Authentication success will be handled by onAuthStateChanged
-      } else {
-        console.log('No redirect result found');
       }
     }).catch((error) => {
-      console.error('Redirect result error:', error);
-      // Only set loading to false if there's a critical error
       if (error.code === 'auth/unauthorized-domain') {
-        console.error('Domain not authorized in Firebase');
         setLoading(false);
       } else if (error.code !== 'auth/operation-not-allowed') {
         setLoading(false);
@@ -160,23 +150,10 @@ export function AuthProvider({ children }) {
       provider.addScope('email');
       provider.addScope('profile');
       
-      console.log('Attempting Google auth with popup method');
       // Try popup first (primary method)
       const result = await signInWithPopup(auth, provider);
-      console.log('Popup authentication successful');
       return result;
     } catch (error) {
-      console.log('Popup failed, error details:', {
-        code: error.code,
-        message: error.message,
-        shouldTryRedirect: error.code === 'auth/popup-blocked' || 
-                          error.code === 'auth/popup-closed-by-user' ||
-                          error.code === 'auth/cancelled-popup-request' ||
-                          error.code === 'auth/web-storage-unsupported' ||
-                          error.message.includes('Cross-Origin-Opener-Policy') ||
-                          error.message.includes('window.close')
-      });
-      
       // Fallback to redirect when popup is blocked or fails
       if (error.code === 'auth/popup-blocked' || 
           error.code === 'auth/popup-closed-by-user' ||
@@ -188,12 +165,10 @@ export function AuthProvider({ children }) {
           const provider = new GoogleAuthProvider();
           provider.addScope('email');
           provider.addScope('profile');
-          console.log('Starting Google auth with redirect method');
           await signInWithRedirect(auth, provider);
           // For redirect, we don't return anything as the page will reload
           return null;
         } catch (redirectError) {
-          console.error('Redirect auth error:', redirectError);
           throw redirectError;
         }
       }
@@ -219,5 +194,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
-
-
