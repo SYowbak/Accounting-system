@@ -13,6 +13,30 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isRegistering, setIsRegistering] = useState(false);
 
+  /*Обробка входу через Google*/
+  const handleGoogleSignIn = async () => {
+    setError('');
+    setLoading(true);
+    try {
+      await signInWithGoogle();
+    } catch (e) {
+      if (e.code === 'auth/popup-blocked') {
+        setError('Спливаюче вікно заблоковано. Дозвольте спливаючі вікна для цього сайту.');
+      } else if (e.code === 'auth/popup-closed-by-user') {
+        setError('Вікно авторизації було закрито.');
+      } else if (e.code === 'auth/cancelled-popup-request') {
+        setError('Запит на авторизацію скасовано.');
+      } else if (e.message && e.message.includes('Cross-Origin-Opener-Policy')) {
+        setError('Помилка безпеки браузера. Спробуйте оновити сторінку.');
+      } else {
+        setError('Помилка входу через Google. Спробуйте ще раз.');
+      }
+      console.error('Google sign-in error:', e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   /*Обробка входу або реєстрації*/
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -122,7 +146,7 @@ export default function LoginPage() {
             
             <Divider>або</Divider>
             
-            <Button variant="outlined" onClick={signInWithGoogle} disabled={loading}>
+            <Button variant="outlined" onClick={handleGoogleSignIn} disabled={loading}>
               Увійти через Google
             </Button>
           </Stack>

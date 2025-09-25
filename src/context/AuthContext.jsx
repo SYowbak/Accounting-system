@@ -121,9 +121,24 @@ export function AuthProvider({ children }) {
   /*Функція входу через Google*/
   const signInWithGoogle = async () => {
     try {
-      return await signInWithPopup(auth, new GoogleAuthProvider());
+      const provider = new GoogleAuthProvider();
+      provider.addScope('email');
+      provider.addScope('profile');
+      
+      return await signInWithPopup(auth, provider);
     } catch (error) {
-      return signInWithRedirect(auth, new GoogleAuthProvider());
+      if (error.code === 'auth/popup-blocked' || 
+          error.code === 'auth/popup-closed-by-user' ||
+          error.code === 'auth/cancelled-popup-request' ||
+          error.message.includes('Cross-Origin-Opener-Policy')) {
+        try {
+          await signInWithRedirect(auth, new GoogleAuthProvider());
+          return null;
+        } catch (redirectError) {
+          throw redirectError;
+        }
+      }
+      throw error;
     }
   };
   
