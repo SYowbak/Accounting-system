@@ -213,14 +213,9 @@ export default function AddItemModal({
                 fullWidth
                 size="small"
                 sx={{ mt: 1 }}
-                value={form[`${field.id}Custom`] || ''}
+                value={form.customUnit || ''}
                 onChange={(e) => {
-                  setForm(prev => ({ ...prev, [`${field.id}Custom`]: e.target.value }));
-                }}
-                onBlur={(e) => {
-                  if (e.target.value.trim()) {
-                    setForm(prev => ({ ...prev, [field.id]: e.target.value.trim() }));
-                  }
+                  setForm(prev => ({ ...prev, customUnit: e.target.value }));
                 }}
               />
             )}
