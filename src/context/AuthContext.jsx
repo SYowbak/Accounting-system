@@ -30,12 +30,33 @@ export function AuthProvider({ children }) {
                 setProfile(profileData);
                 setLoading(false);
               } else {
-                fbSignOut(auth);
-                setProfile(null);
-                setLoading(false);
+                /*Створення профілю для нового користувача*/
+                console.log('Creating profile for new user:', u.email);
+                const newProfile = {
+                  email: u.email,
+                  displayName: u.displayName || u.email,
+                  role: '',
+                  assignedUnitId: '',
+                  assignedSectionId: '',
+                  authProvider: u.providerData[0]?.providerId || 'password',
+                  createdAt: serverTimestamp(),
+                };
+                setDoc(userDocRef, newProfile).then(() => {
+                  console.log('Profile created successfully for:', u.email);
+                  setProfile({ id: u.uid, ...newProfile });
+                  setLoading(false);
+                }).catch((createError) => {
+                  console.error('Failed to create profile:', createError);
+                  if (createError.code === 'permission-denied') {
+                    fbSignOut(auth);
+                  }
+                  setProfile(null);
+                  setLoading(false);
+                });
               }
             },
             (error) => {
+              console.error('Profile listener error:', error);
               if (error.code === 'permission-denied') {
                 /*Створення профілю при помилці доступу*/
                 const newProfile = {
@@ -79,12 +100,25 @@ export function AuthProvider({ children }) {
 
     /*Перевірка результату redirect при завантаженні*/
     getRedirectResult(auth).then(async (result) => {
-      if (result) {
-        console.log('Google auth redirect success:', result.user.email);
+      if (result && result.user) {
+        console.log('Google auth redirect success:', {
+          email: result.user.email,
+          provider: result.providerId,
+          isNewUser: result.additionalUserInfo?.isNewUser
+        });
+        // Authentication success will be handled by onAuthStateChanged
+      } else {
+        console.log('No redirect result found');
       }
     }).catch((error) => {
       console.error('Redirect result error:', error);
-      setLoading(false);
+      // Only set loading to false if there's a critical error
+      if (error.code === 'auth/unauthorized-domain') {
+        console.error('Domain not authorized in Firebase');
+        setLoading(false);
+      } else if (error.code !== 'auth/operation-not-allowed') {
+        setLoading(false);
+      }
     });
 
     return () => {
@@ -126,11 +160,27 @@ export function AuthProvider({ children }) {
       provider.addScope('email');
       provider.addScope('profile');
       
-      console.log('Starting Google auth with redirect method');
-      // Use redirect method to avoid COOP issues
-      await signInWithRedirect(auth, provider);
+      console.log('Attempting Google auth with popup method');
+      // Try popup first (primary method)
+      return await signInWithPopup(auth, provider);
     } catch (error) {
-      console.error('Google auth error:', error);
+      console.log('Popup failed, trying redirect method:', error.code);
+      // Fallback to redirect when popup is blocked
+      if (error.code === 'auth/popup-blocked' || 
+          error.code === 'auth/popup-closed-by-user' ||
+          error.code === 'auth/cancelled-popup-request' ||
+          error.message.includes('Cross-Origin-Opener-Policy')) {
+        try {
+          const provider = new GoogleAuthProvider();
+          provider.addScope('email');
+          provider.addScope('profile');
+          console.log('Starting Google auth with redirect method');
+          return await signInWithRedirect(auth, provider);
+        } catch (redirectError) {
+          console.error('Redirect auth error:', redirectError);
+          throw redirectError;
+        }
+      }
       throw error;
     }
   };

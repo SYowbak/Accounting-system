@@ -19,10 +19,22 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signInWithGoogle();
-      // Redirect method will handle the authentication
+      // Success will be handled by AuthContext
     } catch (e) {
-      setError('Помилка входу через Google. Спробуйте ще раз.');
-      console.error('Google sign-in error:', e);
+      console.error('Google auth error:', e);
+      if (e.code === 'auth/popup-blocked') {
+        setError('Спливаюче вікно заблоковано. Дозвольте спливаючі вікна для цього сайту.');
+      } else if (e.code === 'auth/popup-closed-by-user') {
+        setError('Вікно авторизації було закрито.');
+      } else if (e.code === 'auth/cancelled-popup-request') {
+        setError('Запит на авторизацію скасовано.');
+      } else if (e.code === 'auth/unauthorized-domain') {
+        setError('Домен не авторизований. Зверніться до адміністратора.');
+      } else if (e.message && e.message.includes('Cross-Origin-Opener-Policy')) {
+        setError('Помилка безпеки браузера. Оновіть сторінку і спробуйте ще раз.');
+      } else {
+        setError('Помилка входу через Google. Перевірте інтернет-з’єднання і спробуйте ще раз.');
+      }
       setLoading(false);
     }
   };
