@@ -54,3 +54,4 @@ temp/
 # Cache
 .cache/
 .parcel-cache/
+.vercel

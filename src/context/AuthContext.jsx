@@ -120,26 +120,12 @@ export function AuthProvider({ children }) {
   
   /*Функція входу через Google*/
   const signInWithGoogle = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.addScope('email');
-      provider.addScope('profile');
-      
-      return await signInWithPopup(auth, provider);
-    } catch (error) {
-      if (error.code === 'auth/popup-blocked' || 
-          error.code === 'auth/popup-closed-by-user' ||
-          error.code === 'auth/cancelled-popup-request' ||
-          error.message.includes('Cross-Origin-Opener-Policy')) {
-        try {
-          await signInWithRedirect(auth, new GoogleAuthProvider());
-          return null;
-        } catch (redirectError) {
-          throw redirectError;
-        }
-      }
-      throw error;
-    }
+    const provider = new GoogleAuthProvider();
+    provider.addScope('email');
+    provider.addScope('profile');
+    
+    // Use redirect method to avoid COOP issues
+    return signInWithRedirect(auth, provider);
   };
   
   /*Функція виходу з системи*/

@@ -19,20 +19,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signInWithGoogle();
+      // Redirect method will handle the authentication
     } catch (e) {
-      if (e.code === 'auth/popup-blocked') {
-        setError('Спливаюче вікно заблоковано. Дозвольте спливаючі вікна для цього сайту.');
-      } else if (e.code === 'auth/popup-closed-by-user') {
-        setError('Вікно авторизації було закрито.');
-      } else if (e.code === 'auth/cancelled-popup-request') {
-        setError('Запит на авторизацію скасовано.');
-      } else if (e.message && e.message.includes('Cross-Origin-Opener-Policy')) {
-        setError('Помилка безпеки браузера. Спробуйте оновити сторінку.');
-      } else {
-        setError('Помилка входу через Google. Спробуйте ще раз.');
-      }
+      setError('Помилка входу через Google. Спробуйте ще раз.');
       console.error('Google sign-in error:', e);
-    } finally {
       setLoading(false);
     }
   };
