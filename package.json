@@ -1,0 +1,40 @@
+{
+  "name": "electronic-warehouse-accounting",
+  "version": "1.0.0",
+  "description": "Electronic Warehouse Accounting System - A comprehensive inventory management solution with role-based access control",
+  "private": true,
+  "type": "module",
+  "keywords": [
+    "inventory",
+    "warehouse",
+    "accounting",
+    "material-assets",
+    "react",
+    "firebase",
+    "mui"
+  ],
+  "author": "Development Team",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "vite"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^7.3.2",
+    "@mui/material": "^7.3.2",
+    "@mui/x-data-grid": "^8.11.3",
+    "firebase": "^12.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^7.9.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.10"
+  }
+}
