@@ -162,25 +162,42 @@ export function AuthProvider({ children }) {
       
       console.log('Attempting Google auth with popup method');
       // Try popup first (primary method)
-      return await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      console.log('Popup authentication successful');
+      return result;
     } catch (error) {
-      console.log('Popup failed, trying redirect method:', error.code);
-      // Fallback to redirect when popup is blocked
+      console.log('Popup failed, error details:', {
+        code: error.code,
+        message: error.message,
+        shouldTryRedirect: error.code === 'auth/popup-blocked' || 
+                          error.code === 'auth/popup-closed-by-user' ||
+                          error.code === 'auth/cancelled-popup-request' ||
+                          error.code === 'auth/web-storage-unsupported' ||
+                          error.message.includes('Cross-Origin-Opener-Policy') ||
+                          error.message.includes('window.close')
+      });
+      
+      // Fallback to redirect when popup is blocked or fails
       if (error.code === 'auth/popup-blocked' || 
           error.code === 'auth/popup-closed-by-user' ||
           error.code === 'auth/cancelled-popup-request' ||
-          error.message.includes('Cross-Origin-Opener-Policy')) {
+          error.code === 'auth/web-storage-unsupported' ||
+          error.message.includes('Cross-Origin-Opener-Policy') ||
+          error.message.includes('window.close')) {
         try {
           const provider = new GoogleAuthProvider();
           provider.addScope('email');
           provider.addScope('profile');
           console.log('Starting Google auth with redirect method');
-          return await signInWithRedirect(auth, provider);
+          await signInWithRedirect(auth, provider);
+          // For redirect, we don't return anything as the page will reload
+          return null;
         } catch (redirectError) {
           console.error('Redirect auth error:', redirectError);
           throw redirectError;
         }
       }
+      // If it's not a popup-related error, throw the original error
       throw error;
     }
   };

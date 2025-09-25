@@ -18,11 +18,27 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await signInWithGoogle();
+      const result = await signInWithGoogle();
+      if (result === null) {
+        // Redirect method was used, page will reload - don't show error
+        return;
+      }
       // Success will be handled by AuthContext
     } catch (e) {
       console.error('Google auth error:', e);
-      if (e.code === 'auth/popup-blocked') {
+      
+      // Check for COOP-related errors that might not be caught by the fallback
+      if (e.message && (e.message.includes('Cross-Origin-Opener-Policy') || 
+                       e.message.includes('window.close'))) {
+        // Try redirect as a last resort
+        try {
+          console.log('Attempting direct redirect due to COOP error');
+          await signInWithGoogle(); // This should trigger redirect fallback
+          return;
+        } catch (redirectError) {
+          setError('Помилка безпеки браузера. Оновіть сторінку і спробуйте ще раз.');
+        }
+      } else if (e.code === 'auth/popup-blocked') {
         setError('Спливаюче вікно заблоковано. Дозвольте спливаючі вікна для цього сайту.');
       } else if (e.code === 'auth/popup-closed-by-user') {
         setError('Вікно авторизації було закрито.');
@@ -30,8 +46,6 @@ export default function LoginPage() {
         setError('Запит на авторизацію скасовано.');
       } else if (e.code === 'auth/unauthorized-domain') {
         setError('Домен не авторизований. Зверніться до адміністратора.');
-      } else if (e.message && e.message.includes('Cross-Origin-Opener-Policy')) {
-        setError('Помилка безпеки браузера. Оновіть сторінку і спробуйте ще раз.');
       } else {
         setError('Помилка входу через Google. Перевірте інтернет-з’єднання і спробуйте ще раз.');
       }
