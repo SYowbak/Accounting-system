@@ -64,7 +64,6 @@ export async function exportFullBookToExcel(items = [], getTransactions, fileNam
       'Видаток': t.expense,
       'Залишок': t.balance,
       'Контроль': t.controlInfo,
-      'Файл': t.attachedFileUrl || '',
     }));
     const wsTx = XLSX.utils.json_to_sheet(txRows);
     // Додаємо аркуш транзакцій

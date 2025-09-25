@@ -192,24 +192,17 @@ export default function useInventory(currentUserProfile) {
       createdAt: serverTimestamp(),
     };
 
-    delete itemData.attachedFiles;
-
     const docRef = await addDoc(collection(db, 'inventoryItems'), itemData);
     return docRef.id;
   }, []);
 
   const updateItem = useCallback(async (itemId, data) => {
-    const updateData = { ...data };
-    delete updateData.attachedFiles;
-
-    await updateDoc(doc(db, 'inventoryItems', itemId), updateData);
+    await updateDoc(doc(db, 'inventoryItems', itemId), data);
   }, []);
 
   const deleteItem = useCallback(async (itemId) => {
     await deleteDoc(doc(db, 'inventoryItems', itemId));
   }, []);
-
-  // Видалено підтримку транзакцій та файлів
 
   const value = {
     // дані
@@ -232,7 +225,6 @@ export default function useInventory(currentUserProfile) {
     createItem,
     updateItem,
     deleteItem,
-    // транзакції видалені
   };
 
   return value;
