@@ -36,7 +36,7 @@ export default function NoAccessPage() {
           
           <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
             Ваш обліковий запис було успішно створено, але адміністратор ще не призначив вам роль в системі. 
-            Зверніться до адміністратора для отримання доступу до системи.
+            Зверніться до адміністратора (syowbak@gmail.com) для отримання доступу до системи.
           </Typography>
           
           <Box sx={{ bgcolor: 'info.light', p: 2, borderRadius: 1, mb: 3 }}>

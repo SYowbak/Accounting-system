@@ -20,16 +20,16 @@ export default function LoginPage() {
     try {
       const result = await signInWithGoogle();
       if (result === null) {
-        // Redirect method was used, page will reload - don't show error
+
         return;
       }
-      // Success will be handled by AuthContext
+
     } catch (e) {
       if (e.message && (e.message.includes('Cross-Origin-Opener-Policy') || 
                        e.message.includes('window.close'))) {
-        // Try redirect as a last resort
+
         try {
-          await signInWithGoogle(); // This should trigger redirect fallback
+          await signInWithGoogle(); 
           return;
         } catch (redirectError) {
           setError('Помилка безпеки браузера. Оновіть сторінку і спробуйте ще раз.');
